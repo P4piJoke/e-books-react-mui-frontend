@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import BookService from "../services/BookService"
 import { Button, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const BooksList = () => {
 
@@ -17,8 +18,14 @@ const BooksList = () => {
     }
 
     const deleteBook = async (title) => {
-        await BookService.remove(title);
-        loadBooks();
+        await BookService.remove(title)
+            .then(() => {
+                toast.success("Book: " + title + " was deleted")
+                loadBooks();
+            })
+            .catch((err) => {
+                toast.error("Book: " + title + " wasn't deleted due to: " + err.message)
+            });
     }
 
     return (
@@ -46,21 +53,20 @@ const BooksList = () => {
                                         <TableCell>{book.title}</TableCell>
                                         <TableCell>{book.author}</TableCell>
                                         <TableCell>{book.year}</TableCell>
-                                        <TableCell width={200} align="center">
+                                        <TableCell width={200}
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "space-evenly"
+                                            }}
+                                        >
                                             <Button component={Link} to={`/editbook/${book.title}`}
-                                                sx={{
-                                                    mx: 1
-                                                }} variant="contained" color="info">Edit</Button>
+                                                variant="contained" color="info">Edit</Button>
                                             <Button onClick={() => deleteBook(book.title)}
-                                                sx={{
-                                                    mx: 1
-                                                }} variant="contained" color="error">Delete</Button>
+                                                variant="contained" color="error">Delete</Button>
                                         </TableCell>
                                     </TableRow>
                                 )
-                            }
-
-                            )
+                            })
                         }
                     </TableBody>
                 </Table>
